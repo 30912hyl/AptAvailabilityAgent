@@ -1,0 +1,46 @@
+name: Watch The Martin 1BR listings
+
+on:
+  schedule:
+    # Every 10 minutes (GitHub may delay by a few minutes; that's normal)
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}   # allows manual "Run workflow" button
+
+permissions:
+  contents: write   # needed to commit state.json back to the repo
+
+concurrency:
+  group: martin-watcher
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+
+      - name: Run watcher
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python watcher.py
+
+      - name: Commit updated state
+        run: |
+          git config user.name "martin-watcher-bot"
+          git config user.email "actions@github.com"
+          git add state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update listing state [skip ci]"
+            git pull --rebase origin ${GITHUB_REF_NAME} || true
+            git push
+          fi
