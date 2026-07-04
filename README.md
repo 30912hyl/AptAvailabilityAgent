@@ -21,9 +21,7 @@ New listing → Telegram alert.
    find `"chat":{"id": <number>}` — that number is your **chat ID**.
 
 ### 2. Create the GitHub repo
-1. Create a new **private** GitHub repository and push these files to it
-   (`watcher.py`, `README.md`, `.github/workflows/watch.yml`).
-2. In the repo: **Settings → Secrets and variables → Actions → New repository secret**:
+1. After creating a new GitHub repo, in the repo: **Settings → Secrets and variables → Actions → New repository secret**:
    - `TELEGRAM_BOT_TOKEN` = your bot token
    - `TELEGRAM_CHAT_ID` = your chat ID
 
@@ -31,7 +29,7 @@ New listing → Telegram alert.
 - Go to the **Actions** tab → "Watch The Martin 1BR listings" → **Run workflow**.
 - First run establishes a baseline and sends you a "watcher is live" message
   listing current 1BR availability.
-- After that, it runs every 20 minutes automatically and only messages you when
+- After that, it runs every 10 minutes automatically and only messages you when
   something **new** appears.
 
 ## Testing locally (recommended once)
@@ -61,5 +59,5 @@ to adjust.
 
 - `state.json` is committed back to the repo by the workflow so state persists
   between runs.
-- Be a polite scraper: 20-minute intervals are gentle. Don't crank it to
+- Be a polite scraper: 10-minute intervals are gentle. Don't crank it to
   every minute.
