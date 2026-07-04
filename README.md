@@ -1,6 +1,6 @@
 # The Martin — 1BR Availability Watcher
 
-Checks https://livethemartin.com/floorplans/ every ~20 minutes and sends you a
+Checks https://livethemartin.com/floorplans/ every ~10 minutes and sends you a
 Telegram message the moment a new 1-bedroom listing appears.
 
 ## How it works
