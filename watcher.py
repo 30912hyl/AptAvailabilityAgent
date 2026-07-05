@@ -337,6 +337,23 @@ def main():
     new_keys = [k for k in current if k not in previous]
     gone_keys = [k for k in previous if k not in current]
 
+    # Price changes: same listing present in both runs with a different rent.
+    # Old v1 state stored plain strings (no rent) — skip those gracefully.
+    price_changes = []
+    for k in current:
+        prev = previous.get(k)
+        if not isinstance(prev, dict):
+            continue
+        old_rent, new_rent = prev.get("rent"), current[k].get("rent")
+        if old_rent and new_rent and abs(old_rent - new_rent) >= 1:
+            direction = "📈 increased" if new_rent > old_rent else "📉 dropped"
+            delta = abs(int(new_rent - old_rent))
+            price_changes.append(
+                f"• {describe(current[k], features)}\n"
+                f"  {direction}: ${int(old_rent):,} → ${int(new_rent):,} "
+                f"({'+' if new_rent > old_rent else '-'}${delta:,})"
+            )
+
     messages = []
     if not is_first_run:
         if new_keys:
@@ -347,6 +364,8 @@ def main():
             lines = ["📤 No longer available (likely leased):"]
             lines += [f"• {_prev_desc(previous[k], features)}" for k in gone_keys]
             messages.append("\n".join(lines))
+        if price_changes:
+            messages.append("💲 Price change(s):\n" + "\n".join(price_changes))
 
     if messages:
         msg = "\n\n".join(messages) + f"\n\n{PAGE_URL}"
