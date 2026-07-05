@@ -1,7 +1,7 @@
-# The Martin — 1BR Availability Watcher
+# The Martin — Studio/1B/2B Availability Watcher
 
 Checks https://livethemartin.com/floorplans/ every ~10 minutes and sends you a
-Telegram message the moment a new 1-bedroom listing appears.
+Telegram message the moment a new listing appears/disappears.
 
 ## How it works
 
@@ -28,7 +28,7 @@ New listing → Telegram alert.
 ### 3. Test it
 - Go to the **Actions** tab → "Watch The Martin 1BR listings" → **Run workflow**.
 - First run establishes a baseline and sends you a "watcher is live" message
-  listing current 1BR availability.
+  listing current Studio/1B/2B availability.
 - After that, it runs every 10 minutes automatically and only messages you when
   something **new** appears.
 
