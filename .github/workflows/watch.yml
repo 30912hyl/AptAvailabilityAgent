@@ -3,7 +3,7 @@ name: Watch The Martin 1BR listings
 on:
   schedule:
     # Every 10 minutes (GitHub may delay by a few minutes; that's normal)
-    - cron: "*/10 * * * *"
+    - cron: "1,11,21,31,41,51 * * * *"
   workflow_dispatch: {}   # allows manual "Run workflow" button
 
 permissions:
