@@ -1,19 +1,17 @@
 """
-The Martin (Sunnyvale) 1-bedroom availability watcher.
+The Martin (Sunnyvale) apartment availability watcher — v2.
 
-Strategy:
-  1. Load https://livethemartin.com/floorplans/ in headless Chromium (Playwright).
-  2. Intercept every JSON response the page fetches (RentCafe-backed sites load
-     floorplan/unit availability via XHR). Collect anything that looks like
-     floorplan or unit data.
-  3. As a fallback, also scrape the rendered DOM text for 1-bedroom entries.
-  4. Diff against state.json from the previous run.
-  5. If new 1BR listings appeared (or a floorplan went from 0 -> some availability),
-     send a Telegram message (and always print to stdout).
+What it does:
+  * Watches ALL bed types (studio / 1BR / 2BR / 3BR).
+  * Alerts when a NEW listing appears.
+  * Alerts when a previously-seen listing DISAPPEARS (leased / taken down).
+  * Enriches alerts with facing direction + balcony from unit_features.json
+    (a manual one-time mapping you build from the property sitemap).
+  * Classifies 1BRs as "full-size" vs "studio-style" by square footage.
 
 Usage:
   python watcher.py            # normal run
-  python watcher.py --debug    # also dumps all captured API JSON to debug_capture.json
+  python watcher.py --debug    # dump captured API JSON + rendered text
 
 Env vars (only needed for notifications):
   TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
@@ -30,8 +28,14 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 PAGE_URL = "https://livethemartin.com/floorplans/"
-STATE_FILE = Path(__file__).parent / "state.json"
+BASE_DIR = Path(__file__).parent
+STATE_FILE = BASE_DIR / "state.json"
+FEATURES_FILE = BASE_DIR / "unit_features.json"
 DEBUG = "--debug" in sys.argv
+
+# 1BRs at or below this square footage get labeled "studio-style 1BR".
+# Tune to taste; ~650 sqft is a reasonable cutoff for a compact 1BR.
+SMALL_1BR_SQFT = 650
 
 
 # ---------------------------------------------------------------------------
@@ -39,7 +43,7 @@ DEBUG = "--debug" in sys.argv
 # ---------------------------------------------------------------------------
 
 def capture_page_data():
-    captured = []          # list of (url, parsed_json)
+    captured = []
     rendered_text = ""
 
     with sync_playwright() as p:
@@ -58,19 +62,16 @@ def capture_page_data():
             looks_relevant = any(
                 k in url.lower()
                 for k in ("rentcafe", "floorplan", "availab", "admin-ajax",
-                          "apartment", "unit", "wp-json")
+                          "apartment", "unit", "wp-json", "sightmap", "engrain")
             )
             if "json" in ctype or looks_relevant:
                 try:
-                    body = resp.text()
-                    data = json.loads(body)
-                    captured.append((url, data))
+                    captured.append((url, json.loads(resp.text())))
                 except Exception:
                     pass
 
         page.on("response", on_response)
         page.goto(PAGE_URL, wait_until="networkidle", timeout=60_000)
-        # Give lazy widgets a moment, then scroll to trigger lazy loading
         page.mouse.wheel(0, 3000)
         page.wait_for_timeout(4000)
         rendered_text = page.inner_text("body")
@@ -87,11 +88,10 @@ def capture_page_data():
 
 
 # ---------------------------------------------------------------------------
-# Parse: pull 1BR listings out of whatever we captured
+# Parse: extract ALL listings (every bed count)
 # ---------------------------------------------------------------------------
 
 def _walk(obj):
-    """Yield every dict nested anywhere inside obj."""
     if isinstance(obj, dict):
         yield obj
         for v in obj.values():
@@ -102,7 +102,6 @@ def _walk(obj):
 
 
 def _get(d, *names):
-    """Case-insensitive dict lookup across several candidate key names."""
     lower = {k.lower(): v for k, v in d.items()}
     for n in names:
         if n.lower() in lower:
@@ -110,11 +109,14 @@ def _get(d, *names):
     return None
 
 
-def parse_one_bedroom_listings(captured, rendered_text):
-    """Return dict: listing_key -> human-readable description."""
+def _bed_label(beds_n):
+    return "Studio" if beds_n == 0 else f"{beds_n}BR"
+
+
+def parse_listings(captured, rendered_text):
+    """Return dict: key -> listing dict with structured fields."""
     listings = {}
 
-    # --- Primary: structured JSON (RentCafe schemas and lookalikes) ---
     for _url, data in captured:
         for d in _walk(data):
             beds = _get(d, "Beds", "Bedrooms", "BedRooms", "bed", "bedroomcount")
@@ -124,7 +126,7 @@ def parse_one_bedroom_listings(captured, rendered_text):
                 beds_n = int(float(str(beds).strip()))
             except (ValueError, TypeError):
                 continue
-            if beds_n != 1:
+            if beds_n < 0 or beds_n > 5:
                 continue
 
             unit = _get(d, "ApartmentName", "UnitNumber", "Unit", "UnitId")
@@ -135,15 +137,23 @@ def parse_one_bedroom_listings(captured, rendered_text):
                               "DateAvailable", "MoveInDate")
             avail_count = _get(d, "AvailableUnitsCount", "AvailableUnits",
                                "UnitsAvailable", "AvailableCount")
+            # Defensive: capture balcony/amenity text if the feed ever has it
+            amenities = _get(d, "Amenities", "AmenityList", "UnitAmenities",
+                             "Features")
 
             if unit:
-                # Unit-level record: one key per physical unit
                 key = f"unit:{unit}"
-                desc = f"Unit {unit}"
-                if plan:
-                    desc += f" ({plan})"
+                rec = {
+                    "unit": str(unit), "plan": plan, "beds": beds_n,
+                    "sqft": _num(sqft), "rent": _num(rent),
+                    "avail_date": str(avail_date) if avail_date else None,
+                }
+                if amenities:
+                    txt = json.dumps(amenities).lower()
+                    if "balcony" in txt or "patio" in txt or "terrace" in txt:
+                        rec["balcony_from_feed"] = True
+                listings[key] = rec
             elif plan and avail_count is not None:
-                # Floorplan-level record: track availability count changes
                 try:
                     n = int(float(str(avail_count)))
                 except (ValueError, TypeError):
@@ -151,32 +161,115 @@ def parse_one_bedroom_listings(captured, rendered_text):
                 if n <= 0:
                     continue
                 key = f"plan:{plan}:{n}"
-                desc = f"Floorplan {plan}: {n} unit(s) available"
-            else:
-                continue
+                listings[key] = {
+                    "unit": None, "plan": str(plan), "beds": beds_n,
+                    "sqft": _num(sqft), "rent": _num(rent),
+                    "avail_date": None, "plan_count": n,
+                }
 
-            if sqft:
-                desc += f", {sqft} sqft"
-            if rent:
-                desc += f", from ${rent}"
-            if avail_date:
-                desc += f", available {avail_date}"
-            listings[key] = desc
-
-    # --- Fallback: rendered page text ---
+    # Fallback: rendered text (any bed count)
     if not listings and rendered_text:
-        # Look for blocks mentioning "1 Bed" together with availability/pricing
         pattern = re.compile(
-            r"([^\n]*1\s*(?:Bed|Bedroom|BD|BR)[^\n]*(?:\n[^\n]*){0,4})",
+            r"([^\n]*(?:Studio|\d\s*(?:Bed|Bedroom|BD|BR))[^\n]*(?:\n[^\n]*){0,4})",
             re.IGNORECASE,
         )
         for m in pattern.finditer(rendered_text):
             block = m.group(1)
             if re.search(r"\$\s?[\d,]{3,}|available", block, re.IGNORECASE):
-                key = "text:" + re.sub(r"\s+", " ", block.strip())[:120]
-                listings[key] = re.sub(r"\s+", " ", block.strip())[:200]
-
+                clean = re.sub(r"\s+", " ", block.strip())[:200]
+                listings["text:" + clean[:120]] = {"unit": None, "plan": None,
+                                                   "beds": None, "text": clean}
     return listings
+
+
+def _num(v):
+    if v is None:
+        return None
+    try:
+        return float(re.sub(r"[^\d.]", "", str(v)))
+    except ValueError:
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Enrichment: facing direction / balcony from manual sitemap mapping
+# ---------------------------------------------------------------------------
+
+def load_unit_features():
+    if FEATURES_FILE.exists():
+        return json.loads(FEATURES_FILE.read_text())
+    return {}
+
+
+def lookup_features(unit, features):
+    """Match a unit number against unit_features.json.
+
+    Facing: exact match in facing_by_unit wins, else stack suffix
+    (last 2 digits) in facing_by_stack — stacks are consistent vertically.
+    Balcony: exact per-unit list (balconies vary floor to floor). Only
+    reported for floors listed in balcony_floors_mapped; on unmapped
+    floors the balcony field is omitted (unknown), not "no balcony".
+    """
+    if not unit or not features:
+        return {}
+    u = str(unit).strip()
+    out = {}
+
+    m = re.search(r"(\d{2})$", u)
+    stack = m.group(1) if m else None
+    facing = (features.get("facing_by_unit", {}).get(u)
+              or (features.get("facing_by_stack", {}).get(stack) if stack else None))
+    if facing:
+        out["facing"] = facing
+
+    floor = u[:-2] if len(u) > 2 else None
+    mapped_floors = {str(f) for f in features.get("balcony_floors_mapped", [])}
+    if floor and floor in mapped_floors:
+        out["balcony"] = u in set(features.get("balcony_units", []))
+    return out
+
+
+def describe(rec, features):
+    """Human-readable one-liner for a listing record."""
+    if "text" in rec:
+        return rec["text"]
+
+    beds_n = rec.get("beds")
+    parts = []
+
+    if rec.get("unit"):
+        head = f"Unit {rec['unit']}"
+        if rec.get("plan"):
+            head += f" ({rec['plan']})"
+        parts.append(head)
+    elif rec.get("plan_count"):
+        parts.append(f"Floorplan {rec['plan']}: {rec['plan_count']} unit(s)")
+
+    if beds_n is not None:
+        label = _bed_label(beds_n)
+        # 1BR size classification (inferred from sqft)
+        if beds_n == 1 and rec.get("sqft"):
+            kind = ("studio-style 1BR" if rec["sqft"] <= SMALL_1BR_SQFT
+                    else "full-size 1BR")
+            label = f"{label} [{kind}]"
+        parts.append(label)
+
+    if rec.get("sqft"):
+        parts.append(f"{int(rec['sqft'])} sqft")
+    if rec.get("rent"):
+        parts.append(f"from ${int(rec['rent']):,}")
+    if rec.get("avail_date"):
+        parts.append(f"available {rec['avail_date']}")
+
+    feat = lookup_features(rec.get("unit"), features)
+    if feat.get("facing"):
+        parts.append(f"facing {feat['facing']}")
+    if feat.get("balcony") is True or rec.get("balcony_from_feed"):
+        parts.append("balcony ✓")
+    elif feat.get("balcony") is False:
+        parts.append("no balcony")
+
+    return ", ".join(parts)
 
 
 # ---------------------------------------------------------------------------
@@ -215,17 +308,27 @@ def send_telegram(message):
         r.read()
 
 
+def _prev_desc(v, features):
+    """Describe a previous-state entry (handles old string-format state)."""
+    return v if isinstance(v, str) else describe(v, features)
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 def main():
-    captured, rendered_text = capture_page_data()
-    current = parse_one_bedroom_listings(captured, rendered_text)
+    features = load_unit_features()
+    if not features:
+        print("[info] unit_features.json not found or empty — alerts will omit "
+              "facing/balcony. Fill it in from the property sitemap when ready.")
 
-    print(f"Found {len(current)} current 1BR listing record(s):")
-    for desc in current.values():
-        print("  -", desc)
+    captured, rendered_text = capture_page_data()
+    current = parse_listings(captured, rendered_text)
+
+    print(f"Found {len(current)} current listing record(s):")
+    for rec in current.values():
+        print("  -", describe(rec, features))
 
     state = load_state()
     previous = state.get("listings", {})
@@ -234,35 +337,35 @@ def main():
     new_keys = [k for k in current if k not in previous]
     gone_keys = [k for k in previous if k not in current]
 
-    if new_keys and not is_first_run:
-        lines = ["🏠 New 1BR at The Martin (Sunnyvale)!"]
-        lines += [f"• {current[k]}" for k in new_keys]
-        lines.append(f"\n{PAGE_URL}")
-        msg = "\n".join(lines)
+    messages = []
+    if not is_first_run:
+        if new_keys:
+            lines = ["🏠 New listing(s) at The Martin!"]
+            lines += [f"• {describe(current[k], features)}" for k in new_keys]
+            messages.append("\n".join(lines))
+        if gone_keys:
+            lines = ["📤 No longer available (likely leased):"]
+            lines += [f"• {_prev_desc(previous[k], features)}" for k in gone_keys]
+            messages.append("\n".join(lines))
+
+    if messages:
+        msg = "\n\n".join(messages) + f"\n\n{PAGE_URL}"
         print("\n=== ALERT ===\n" + msg)
         send_telegram(msg)
     elif is_first_run:
-        print("\nFirst run — baseline saved, no alert sent.")
-        if current:
-            send_telegram(
-                "✅ Martin watcher is live. Current 1BR listings:\n"
-                + "\n".join(f"• {d}" for d in current.values())
-            )
-        else:
-            send_telegram(
-                "✅ Martin watcher is live. No 1BR listings detected right now "
-                "(if you believe some exist, run with --debug and check parsing)."
-            )
+        print("\nFirst run — baseline saved.")
+        body = ("✅ Martin watcher v2 is live. Tracking ALL unit types.\n"
+                "Current listings:\n"
+                + "\n".join(f"• {describe(r, features)}" for r in current.values())
+                if current else
+                "✅ Martin watcher v2 is live. No listings detected right now.")
+        send_telegram(body)
     else:
-        print("\nNo new 1BR listings.")
+        print("\nNo changes.")
 
-    if gone_keys:
-        print(f"({len(gone_keys)} listing(s) no longer shown.)")
-
-    # Warn loudly if we captured nothing at all — likely blocked or site changed
     if not captured and not current:
         print("[warn] No API JSON captured and no listings parsed. "
-              "The site may be blocking headless browsers or changed structure. "
+              "Site may be blocking headless browsers or changed structure. "
               "Run locally with --debug to inspect.")
 
     save_state(current)

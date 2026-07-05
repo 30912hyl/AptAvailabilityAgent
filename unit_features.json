@@ -1,0 +1,110 @@
+{
+  "_README": [
+    "facing_by_stack: last-2-digit stack -> direction, derived from sitemaps",
+    "(Taaffe=west, Murphy=east, McKinley=south). facing_by_unit overrides for",
+    "specific units if a floor deviates. balcony_units: exact unit numbers",
+    "with balconies. balcony_floors_mapped: floors whose balconies have been",
+    "mapped — units on other floors show no balcony info rather than a wrong",
+    "'no balcony'. Add floors to both fields as you map them."
+  ],
+
+  "facing_by_stack": {
+    "01": "north and west (corner)",
+    "02": "north",
+    "03": "west (Taaffe)",
+    "04": "east (courtyard)",
+    "05": "west (Taaffe)",
+    "06": "east (courtyard)",
+    "07": "west (Taaffe)",
+    "08": "east (courtyard)",
+    "09": "west (Taaffe)",
+    "11": "west (Taaffe)",
+    "12": "east (courtyard)",
+    "13": "west (Taaffe)",
+    "14": "east (courtyard)",
+    "15": "west (Taaffe)",
+    "17": "west (Taaffe)",
+    "19": "south and west (corner)",
+    "21": "south (McKinley)",
+    "22": "north (courtyard)",
+    "23": "south (McKinley)",
+    "24": "north (courtyard)",
+    "25": "south (McKinley)",
+    "26": "north (courtyard)",
+    "27": "south and east (corner)",
+    "29": "north",
+    "30": "north",
+    "31": "south (courtyard)",
+    "32": "north",
+    "33": "south (courtyard)",
+    "34": "north",
+    "35": "south (courtyard)",
+    "36": "north",
+    "37": "south (pool)",
+    "38": "north",
+    "39": "south (pool)",
+    "41": "south (pool)",
+    "43": "south (pool)",
+    "45": "south (pool)",
+    "46": "north",
+    "47": "south (pool)",
+    "48": "north",
+    "49": "south (pool)",
+    "50": "north",
+    "52": "north",
+    "54": "north and east (corner)",
+    "56": "east (Murphy)",
+    "58": "east (Murphy)",
+    "60": "east (Murphy)",
+    "61": "west (pool/courtyard)",
+    "62": "east (Murphy)",
+    "63": "west (pool/courtyard)",
+    "64": "east (Murphy)",
+    "65": "west (pool/courtyard)",
+    "67": "south and west (corner)"
+  },
+
+  "facing_by_unit": {},
+
+  "balcony_floors_mapped": ["2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+
+  "balcony_units": [
+    "226", "227",
+    
+    "301", "303", "308", "312", "315", "317", "319", "321", "323", "324",
+    "325", "326", "327", "345", "348", "352", "354", "362", "363", "364",
+    "365", "367",
+    
+    "401", "403", "405", "408", "411", "412", "415", "417", "421", "423",
+    "424", "426", "427", "445", "448", "452", "454", "463", "464", "465",
+
+    "501", "503", "508", "512", "515", "517", "519", "521", "523", "524",
+    "525", "526", "527", "539", "545", "548", "552", "554", "562", "563",
+    "564", "565", "567",
+    
+    "601", "603", "605", "608", "611", "612", "615", "617", "621", "623",
+    "624", "626", "627", "632", "633", "634", "635", "639", "645", "648",
+    "652", "654", "663", "664", "665",
+    
+    "701", "703", "708", "709", "712", "715", "717", "719", "721", "723",
+    "724", "725", "726", "727", "732", "733", "734", "735", "739", "745",
+    "748", "752", "754", "762", "763", "764", "765", "767",
+    
+    "801", "803", "805", "808", "811", "812", "815", "817", "824", "826",
+    "827", "832", "833", "834", "835", "839", "845", "848", "852", "854",
+    "863", "864", "865",
+    
+    "901", "903", "908", "909", "912", "917", "921", "923", "924", "925",
+    "932", "933", "934", "935", "939", "945", "948", "952", "958", "960",
+    "962",
+    
+    "1001", "1003", "1005", "1008", "1011", "1012", "1024", "1032", "1033",
+    "1034", "1035", "1045", "1048", "1062",
+    
+    "1101", "1108", "1011", "1132", "1133", "1134", "1135", "1145", "1148",
+    "1150", "1160", "1162",
+    
+    "1201", "1203", "1205", "1208", "1211", "1212", "1232", "1233", "1234",
+    "1239", "1245", "1262"
+  ]
+}
