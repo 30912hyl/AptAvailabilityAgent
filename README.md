@@ -1,7 +1,7 @@
 # The Martin — Studio/1B/2B Availability Watcher
 
 Checks https://livethemartin.com/floorplans/ every ~10 minutes and sends you a
-Telegram message the moment a new listing appears/disappears.
+Telegram message about listing changes (new listings, price fluctuations, removed listings).
 
 ## How it works
 
@@ -20,17 +20,13 @@ New listing → Telegram alert.
 3. Visit `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates` in a browser and
    find `"chat":{"id": <number>}` — that number is your **chat ID**.
 
-### 2. Create the GitHub repo
+### 2. Create GitHub repo
 1. After creating a new GitHub repo, in the repo: **Settings → Secrets and variables → Actions → New repository secret**:
    - `TELEGRAM_BOT_TOKEN` = your bot token
    - `TELEGRAM_CHAT_ID` = your chat ID
 
-### 3. Test it
-- Go to the **Actions** tab → "Watch The Martin 1BR listings" → **Run workflow**.
-- First run establishes a baseline and sends you a "watcher is live" message
-  listing current Studio/1B/2B availability.
-- After that, it runs every 10 minutes automatically and only messages you when
-  something **new** appears.
+### 3. Test (cron-job.org (generate GitHub API token) > GitHub Actions)
+- Runs every 10 minutes automatically and only messages you when something **new** appears.
 
 ## Testing locally (recommended once)
 
@@ -61,3 +57,4 @@ to adjust.
   between runs.
 - Be a polite scraper: 10-minute intervals are gentle. Don't crank it to
   every minute.
+- Opted into cron-job.org over GitHub Actions for better scheduling reliability.  
