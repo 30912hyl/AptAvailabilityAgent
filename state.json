@@ -36,14 +36,14 @@
       "avail_date": null,
       "plan_count": 7
     },
-    "plan:2J:1": {
+    "plan:2J:2": {
       "unit": null,
       "plan": "2J",
       "beds": 2,
       "sqft": 999.0,
       "rent": 5718.0,
       "avail_date": null,
-      "plan_count": 1
+      "plan_count": 2
     },
     "plan:2K:1": {
       "unit": null,
@@ -159,5 +159,5 @@
       "avail_date": "06/26/2026"
     }
   },
-  "last_run": "2026-07-09T13:13:27.250464+00:00"
+  "last_run": "2026-07-09T13:21:35.999039+00:00"
 }
