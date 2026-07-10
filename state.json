@@ -36,14 +36,14 @@
       "avail_date": null,
       "plan_count": 1
     },
-    "plan:2D:7": {
+    "plan:2D:6": {
       "unit": null,
       "plan": "2D",
       "beds": 2,
       "sqft": 1051.0,
       "rent": 5883.0,
       "avail_date": null,
-      "plan_count": 7
+      "plan_count": 6
     },
     "plan:2J:2": {
       "unit": null,
@@ -86,14 +86,6 @@
       "sqft": 1201.0,
       "rent": 5883.0,
       "avail_date": "08/16/2026"
-    },
-    "unit:519": {
-      "unit": "519",
-      "plan": "2D",
-      "beds": 2,
-      "sqft": 1051.0,
-      "rent": 6128.0,
-      "avail_date": "07/06/2026"
     },
     "unit:1102": {
       "unit": "1102",
@@ -176,5 +168,5 @@
       "avail_date": "06/03/2025"
     }
   },
-  "last_run": "2026-07-10T22:51:09.042481+00:00"
+  "last_run": "2026-07-10T23:01:11.066906+00:00"
 }
