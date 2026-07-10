@@ -18,12 +18,21 @@
       "avail_date": null,
       "plan_count": 1
     },
+    "plan:1E:1": {
+      "unit": null,
+      "plan": "1E",
+      "beds": 1,
+      "sqft": 761.0,
+      "rent": 4152.0,
+      "avail_date": null,
+      "plan_count": 1
+    },
     "plan:2A:1": {
       "unit": null,
       "plan": "2A",
       "beds": 2,
       "sqft": 1201.0,
-      "rent": 5913.0,
+      "rent": 5883.0,
       "avail_date": null,
       "plan_count": 1
     },
@@ -32,7 +41,7 @@
       "plan": "2D",
       "beds": 2,
       "sqft": 1051.0,
-      "rent": 5913.0,
+      "rent": 5883.0,
       "avail_date": null,
       "plan_count": 7
     },
@@ -41,7 +50,7 @@
       "plan": "2J",
       "beds": 2,
       "sqft": 999.0,
-      "rent": 5718.0,
+      "rent": 5688.0,
       "avail_date": null,
       "plan_count": 2
     },
@@ -50,7 +59,7 @@
       "plan": "2K",
       "beds": 2,
       "sqft": 1081.0,
-      "rent": 6158.0,
+      "rent": 6128.0,
       "avail_date": null,
       "plan_count": 1
     },
@@ -60,7 +69,15 @@
       "beds": 1,
       "sqft": 693.0,
       "rent": 5197.0,
-      "avail_date": "09/02/2026"
+      "avail_date": "09/05/2026"
+    },
+    "unit:203": {
+      "unit": "203",
+      "plan": "1E",
+      "beds": 1,
+      "sqft": 761.0,
+      "rent": 4152.0,
+      "avail_date": "07/08/2026"
     },
     "unit:711": {
       "unit": "711",
@@ -68,7 +85,7 @@
       "beds": 2,
       "sqft": 1201.0,
       "rent": 5913.0,
-      "avail_date": "08/13/2026"
+      "avail_date": "08/16/2026"
     },
     "unit:519": {
       "unit": "519",
@@ -76,7 +93,7 @@
       "beds": 2,
       "sqft": 1051.0,
       "rent": 6158.0,
-      "avail_date": "07/13/2026"
+      "avail_date": "07/06/2026"
     },
     "unit:1102": {
       "unit": "1102",
@@ -140,7 +157,7 @@
       "beds": 2,
       "sqft": 999.0,
       "rent": 6588.0,
-      "avail_date": "10/03/2026"
+      "avail_date": "10/06/2026"
     },
     "unit:731": {
       "unit": "731",
@@ -167,5 +184,5 @@
       "avail_date": "06/26/2026"
     }
   },
-  "last_run": "2026-07-10T13:21:04.852118+00:00"
+  "last_run": "2026-07-10T13:31:07.957908+00:00"
 }
