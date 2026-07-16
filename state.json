@@ -1,5 +1,14 @@
 {
   "listings": {
+    "plan:J1:1": {
+      "unit": null,
+      "plan": "J1",
+      "beds": 1,
+      "sqft": 575.0,
+      "rent": 3777.0,
+      "avail_date": null,
+      "plan_count": 1
+    },
     "plan:1A:1": {
       "unit": null,
       "plan": "1A",
@@ -148,7 +157,15 @@
       "sqft": 1081.0,
       "rent": 6128.0,
       "avail_date": "07/28/2026"
+    },
+    "unit:213": {
+      "unit": "213",
+      "plan": "J1",
+      "beds": 1,
+      "sqft": 575.0,
+      "rent": 3777.0,
+      "avail_date": "08/21/2026"
     }
   },
-  "last_run": "2026-07-16T13:21:08.941677+00:00"
+  "last_run": "2026-07-16T13:31:26.965495+00:00"
 }
