@@ -45,6 +45,15 @@
       "avail_date": null,
       "plan_count": 1
     },
+    "plan:TH03:1": {
+      "unit": null,
+      "plan": "TH03",
+      "beds": 3,
+      "sqft": 1471.0,
+      "rent": 7570.0,
+      "avail_date": null,
+      "plan_count": 1
+    },
     "unit:1108": {
       "unit": "1108",
       "plan": "1A",
@@ -142,5 +151,5 @@
       "avail_date": "07/28/2026"
     }
   },
-  "last_run": "2026-07-17T16:51:04.945695+00:00"
+  "last_run": "2026-07-17T17:01:40.784563+00:00"
 }
