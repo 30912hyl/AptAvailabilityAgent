@@ -1,11 +1,20 @@
 {
   "listings": {
+    "plan:J1:1": {
+      "unit": null,
+      "plan": "J1",
+      "beds": 1,
+      "sqft": 536.0,
+      "rent": 4466.0,
+      "avail_date": null,
+      "plan_count": 1
+    },
     "plan:1A:2": {
       "unit": null,
       "plan": "1A",
       "beds": 1,
       "sqft": 655.0,
-      "rent": 4315.0,
+      "rent": 4351.0,
       "avail_date": null,
       "plan_count": 2
     },
@@ -14,7 +23,7 @@
       "plan": "1G",
       "beds": 1,
       "sqft": 759.0,
-      "rent": 4350.0,
+      "rent": 4386.0,
       "avail_date": null,
       "plan_count": 1
     },
@@ -23,7 +32,7 @@
       "plan": "2D",
       "beds": 2,
       "sqft": 1051.0,
-      "rent": 5203.0,
+      "rent": 5988.0,
       "avail_date": null,
       "plan_count": 6
     },
@@ -32,7 +41,7 @@
       "plan": "2J",
       "beds": 2,
       "sqft": 999.0,
-      "rent": 4903.0,
+      "rent": 5744.0,
       "avail_date": null,
       "plan_count": 3
     },
@@ -41,7 +50,7 @@
       "plan": "2K",
       "beds": 2,
       "sqft": 1081.0,
-      "rent": 6180.0,
+      "rent": 6184.0,
       "avail_date": null,
       "plan_count": 1
     },
@@ -58,23 +67,23 @@
       "plan": "1A",
       "beds": 1,
       "sqft": 663.0,
-      "rent": 4315.0,
-      "avail_date": "09/23/2026"
+      "rent": 4351.0,
+      "avail_date": "09/26/2026"
     },
     "unit:514": {
       "unit": "514",
       "plan": "1G",
       "beds": 1,
       "sqft": 759.0,
-      "rent": 4350.0,
-      "avail_date": "09/05/2026"
+      "rent": 4386.0,
+      "avail_date": "09/08/2026"
     },
     "unit:519": {
       "unit": "519",
       "plan": "2D",
       "beds": 2,
       "sqft": 1051.0,
-      "rent": 6180.0,
+      "rent": 6184.0,
       "avail_date": "07/06/2026"
     },
     "unit:1102": {
@@ -82,7 +91,7 @@
       "plan": "2D",
       "beds": 2,
       "sqft": 1068.0,
-      "rent": 5203.0,
+      "rent": 6725.0,
       "avail_date": "07/10/2026"
     },
     "unit:219": {
@@ -90,15 +99,15 @@
       "plan": "2D",
       "beds": 2,
       "sqft": 1053.0,
-      "rent": 5935.0,
-      "avail_date": "07/26/2026"
+      "rent": 5988.0,
+      "avail_date": "07/29/2026"
     },
     "unit:419": {
       "unit": "419",
       "plan": "2D",
       "beds": 2,
       "sqft": 1051.0,
-      "rent": 5985.0,
+      "rent": 5989.0,
       "avail_date": "08/04/2026"
     },
     "unit:426": {
@@ -106,7 +115,7 @@
       "plan": "2D",
       "beds": 2,
       "sqft": 1086.0,
-      "rent": 6160.0,
+      "rent": 6164.0,
       "avail_date": "08/10/2026"
     },
     "unit:326": {
@@ -114,7 +123,7 @@
       "plan": "2D",
       "beds": 2,
       "sqft": 1084.0,
-      "rent": 6120.0,
+      "rent": 6124.0,
       "avail_date": "09/01/2026"
     },
     "unit:438": {
@@ -122,7 +131,7 @@
       "plan": "2J",
       "beds": 2,
       "sqft": 999.0,
-      "rent": 5740.0,
+      "rent": 5744.0,
       "avail_date": "04/29/2026"
     },
     "unit:1148": {
@@ -130,15 +139,15 @@
       "plan": "2J",
       "beds": 2,
       "sqft": 1020.0,
-      "rent": 4903.0,
-      "avail_date": "08/21/2026"
+      "rent": 6327.0,
+      "avail_date": "08/24/2026"
     },
     "unit:1138": {
       "unit": "1138",
       "plan": "2J",
       "beds": 2,
       "sqft": 999.0,
-      "rent": 4928.0,
+      "rent": 6300.0,
       "avail_date": "10/06/2026"
     },
     "unit:731": {
@@ -146,7 +155,7 @@
       "plan": "2K",
       "beds": 2,
       "sqft": 1081.0,
-      "rent": 6180.0,
+      "rent": 6184.0,
       "avail_date": "07/28/2026"
     },
     "unit:1041": {
@@ -154,9 +163,9 @@
       "plan": "J1",
       "beds": 1,
       "sqft": 536.0,
-      "rent": 4322.0,
+      "rent": 4466.0,
       "avail_date": "07/01/2026"
     }
   },
-  "last_run": "2026-07-22T16:50:58.739023+00:00"
+  "last_run": "2026-07-22T17:01:13.803012+00:00"
 }
