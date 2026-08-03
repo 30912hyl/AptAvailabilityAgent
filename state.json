@@ -5,7 +5,7 @@
       "plan": "J1",
       "beds": 1,
       "sqft": 536.0,
-      "rent": 4516.0,
+      "rent": 4582.0,
       "avail_date": null,
       "plan_count": 1
     },
@@ -14,7 +14,7 @@
       "plan": "1A",
       "beds": 1,
       "sqft": 655.0,
-      "rent": 4476.0,
+      "rent": 4542.0,
       "avail_date": null,
       "plan_count": 2
     },
@@ -23,7 +23,7 @@
       "plan": "1D",
       "beds": 1,
       "sqft": 932.0,
-      "rent": 7517.0,
+      "rent": 7379.0,
       "avail_date": null,
       "plan_count": 1
     },
@@ -32,7 +32,7 @@
       "plan": "2D",
       "beds": 2,
       "sqft": 1051.0,
-      "rent": 6088.0,
+      "rent": 5937.0,
       "avail_date": null,
       "plan_count": 5
     },
@@ -41,7 +41,7 @@
       "plan": "2J",
       "beds": 2,
       "sqft": 999.0,
-      "rent": 5893.0,
+      "rent": 5742.0,
       "avail_date": null,
       "plan_count": 3
     },
@@ -50,7 +50,7 @@
       "plan": "2K",
       "beds": 2,
       "sqft": 1081.0,
-      "rent": 6333.0,
+      "rent": 6182.0,
       "avail_date": null,
       "plan_count": 1
     },
@@ -159,5 +159,5 @@
       "avail_date": "07/01/2026"
     }
   },
-  "last_run": "2026-08-03T16:51:27.396057+00:00"
+  "last_run": "2026-08-03T17:01:04.038741+00:00"
 }
