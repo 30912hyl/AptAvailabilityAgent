@@ -63,15 +63,6 @@
       "avail_date": null,
       "plan_count": 1
     },
-    "plan:3G:1": {
-      "unit": null,
-      "plan": "3G",
-      "beds": 3,
-      "sqft": 1407.0,
-      "rent": 10587.0,
-      "avail_date": null,
-      "plan_count": 1
-    },
     "unit:1139": {
       "unit": "1139",
       "plan": "1A",
@@ -200,14 +191,6 @@
       "rent": 8635.0,
       "avail_date": "09/15/2026"
     },
-    "unit:1233": {
-      "unit": "1233",
-      "plan": "3G",
-      "beds": 3,
-      "sqft": 1407.0,
-      "rent": 10587.0,
-      "avail_date": "08/01/2026"
-    },
     "unit:1041": {
       "unit": "1041",
       "plan": "J1",
@@ -233,5 +216,5 @@
       "avail_date": "08/04/2026"
     }
   },
-  "last_run": "2026-08-15T21:10:49.533282+00:00"
+  "last_run": "2026-08-16T03:21:15.440224+00:00"
 }
