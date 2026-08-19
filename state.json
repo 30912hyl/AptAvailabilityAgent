@@ -9,14 +9,14 @@
       "avail_date": null,
       "plan_count": 2
     },
-    "plan:1A:4": {
+    "plan:1A:3": {
       "unit": null,
       "plan": "1A",
       "beds": 1,
       "sqft": 655.0,
       "rent": 4583.0,
       "avail_date": null,
-      "plan_count": 4
+      "plan_count": 3
     },
     "plan:1D:1": {
       "unit": null,
@@ -79,14 +79,6 @@
       "sqft": 655.0,
       "rent": 5562.0,
       "avail_date": "08/01/2026"
-    },
-    "unit:1108": {
-      "unit": "1108",
-      "plan": "1A",
-      "beds": 1,
-      "sqft": 693.0,
-      "rent": 5518.0,
-      "avail_date": "09/07/2026"
     },
     "unit:323": {
       "unit": "323",
@@ -233,5 +225,5 @@
       "avail_date": "09/12/2026"
     }
   },
-  "last_run": "2026-08-19T02:41:03.640714+00:00"
+  "last_run": "2026-08-19T03:10:03.156904+00:00"
 }
