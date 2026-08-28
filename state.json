@@ -1,104 +1,5 @@
 {
   "listings": {
-    "plan:J1:4": {
-      "unit": null,
-      "plan": "J1",
-      "beds": 1,
-      "sqft": 524.0,
-      "rent": 4208.0,
-      "avail_date": null,
-      "plan_count": 4
-    },
-    "plan:1A:3": {
-      "unit": null,
-      "plan": "1A",
-      "beds": 1,
-      "sqft": 655.0,
-      "rent": 4583.0,
-      "avail_date": null,
-      "plan_count": 3
-    },
-    "plan:1D:1": {
-      "unit": null,
-      "plan": "1D",
-      "beds": 1,
-      "sqft": 932.0,
-      "rent": 6947.0,
-      "avail_date": null,
-      "plan_count": 1
-    },
-    "plan:1H:1": {
-      "unit": null,
-      "plan": "1H",
-      "beds": 1,
-      "sqft": 753.0,
-      "rent": 4508.0,
-      "avail_date": null,
-      "plan_count": 1
-    },
-    "plan:Penthouse 1O:1": {
-      "unit": null,
-      "plan": "Penthouse 1O",
-      "beds": 1,
-      "sqft": 958.0,
-      "rent": 9072.0,
-      "avail_date": null,
-      "plan_count": 1
-    },
-    "plan:2D:7": {
-      "unit": null,
-      "plan": "2D",
-      "beds": 2,
-      "sqft": 1051.0,
-      "rent": 6185.0,
-      "avail_date": null,
-      "plan_count": 7
-    },
-    "plan:2E:1": {
-      "unit": null,
-      "plan": "2E",
-      "beds": 2,
-      "sqft": 1132.0,
-      "rent": 6088.0,
-      "avail_date": null,
-      "plan_count": 1
-    },
-    "plan:2J:3": {
-      "unit": null,
-      "plan": "2J",
-      "beds": 2,
-      "sqft": 999.0,
-      "rent": 5948.0,
-      "avail_date": null,
-      "plan_count": 3
-    },
-    "plan:Penthouse 2R:1": {
-      "unit": null,
-      "plan": "Penthouse 2R",
-      "beds": 2,
-      "sqft": 1252.0,
-      "rent": 8135.0,
-      "avail_date": null,
-      "plan_count": 1
-    },
-    "plan:3B:1": {
-      "unit": null,
-      "plan": "3B",
-      "beds": 3,
-      "sqft": 1341.0,
-      "rent": 8635.0,
-      "avail_date": null,
-      "plan_count": 1
-    },
-    "plan:TH03:1": {
-      "unit": null,
-      "plan": "TH03",
-      "beds": 3,
-      "sqft": 1471.0,
-      "rent": 9282.0,
-      "avail_date": null,
-      "plan_count": 1
-    },
     "unit:1139": {
       "unit": "1139",
       "plan": "1A",
@@ -292,5 +193,5 @@
       "avail_date": "09/15/2026"
     }
   },
-  "last_run": "2026-08-28T06:51:03.322727+00:00"
+  "last_run": "2026-08-28T07:01:13.927857+00:00"
 }
