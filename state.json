@@ -54,14 +54,23 @@
       "avail_date": null,
       "plan_count": 1
     },
-    "plan:2D:7": {
+    "plan:2A:1": {
+      "unit": null,
+      "plan": "2A",
+      "beds": 2,
+      "sqft": 1108.0,
+      "rent": 6442.0,
+      "avail_date": null,
+      "plan_count": 1
+    },
+    "plan:2D:8": {
       "unit": null,
       "plan": "2D",
       "beds": 2,
       "sqft": 1051.0,
       "rent": 6094.0,
       "avail_date": null,
-      "plan_count": 7
+      "plan_count": 8
     },
     "plan:2E:1": {
       "unit": null,
@@ -80,6 +89,15 @@
       "rent": 5857.0,
       "avail_date": null,
       "plan_count": 3
+    },
+    "plan:2N:1": {
+      "unit": null,
+      "plan": "2N",
+      "beds": 2,
+      "sqft": 1103.0,
+      "rent": 6767.0,
+      "avail_date": null,
+      "plan_count": 1
     },
     "plan:Penthouse 2R:1": {
       "unit": null,
@@ -156,6 +174,14 @@
       "rent": 4482.0,
       "avail_date": "10/13/2026"
     },
+    "unit:1024": {
+      "unit": "1024",
+      "plan": "2A",
+      "beds": 2,
+      "sqft": 1108.0,
+      "rent": 6442.0,
+      "avail_date": "11/05/2026"
+    },
     "unit:519": {
       "unit": "519",
       "plan": "2D",
@@ -212,6 +238,14 @@
       "rent": 6164.0,
       "avail_date": "10/01/2026"
     },
+    "unit:902": {
+      "unit": "902",
+      "plan": "2D",
+      "beds": 2,
+      "sqft": 1067.0,
+      "rent": 6417.0,
+      "avail_date": "10/24/2026"
+    },
     "unit:401": {
       "unit": "401",
       "plan": "2E",
@@ -243,6 +277,14 @@
       "sqft": 999.0,
       "rent": 6425.0,
       "avail_date": "10/07/2026"
+    },
+    "unit:960": {
+      "unit": "960",
+      "plan": "2N",
+      "beds": 2,
+      "sqft": 1103.0,
+      "rent": 6767.0,
+      "avail_date": "10/31/2026"
     },
     "unit:962": {
       "unit": "962",
@@ -309,5 +351,5 @@
       "avail_date": "09/15/2026"
     }
   },
-  "last_run": "2026-08-30T13:20:50.315254+00:00"
+  "last_run": "2026-08-30T13:30:56.670582+00:00"
 }
