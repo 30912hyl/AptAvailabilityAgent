@@ -37,6 +37,13 @@ DEBUG = "--debug" in sys.argv
 # Tune to taste; ~650 sqft is a reasonable cutoff for a compact 1BR.
 SMALL_1BR_SQFT = 650
 
+# Ignore rent moves smaller than this (RentCafe dynamic pricing jitters daily).
+PRICE_ALERT_THRESHOLD = 50
+
+# If more than this fraction of listings would flip (new AND removed at once),
+# treat the run as a scrape anomaly and suppress the alert.
+CHURN_SUPPRESS_RATIO = 0.6
+
 
 # ---------------------------------------------------------------------------
 # Capture: render page and collect JSON API responses
@@ -114,8 +121,15 @@ def _bed_label(beds_n):
 
 
 def parse_listings(captured, rendered_text):
-    """Return dict: key -> listing dict with structured fields."""
-    listings = {}
+    """Return dict: key -> listing dict with structured fields.
+
+    The site's API responses can include BOTH unit-level records and
+    floorplan-summary records describing the same apartments. Unit-level is
+    the real signal, so when any unit records exist, plan-level records are
+    discarded as duplicates. Plan-level is only used as a fallback.
+    """
+    unit_recs = {}
+    plan_recs = {}
 
     for _url, data in captured:
         for d in _walk(data):
@@ -152,7 +166,7 @@ def parse_listings(captured, rendered_text):
                     txt = json.dumps(amenities).lower()
                     if "balcony" in txt or "patio" in txt or "terrace" in txt:
                         rec["balcony_from_feed"] = True
-                listings[key] = rec
+                unit_recs[key] = rec
             elif plan and avail_count is not None:
                 try:
                     n = int(float(str(avail_count)))
@@ -160,12 +174,18 @@ def parse_listings(captured, rendered_text):
                     continue
                 if n <= 0:
                     continue
-                key = f"plan:{plan}:{n}"
-                listings[key] = {
+                # NOTE: key must NOT embed the count — counts change daily
+                # under dynamic pricing, and a changed key falsely reads as
+                # "removed + new". Count lives in the record instead.
+                plan_recs[f"plan:{plan}"] = {
                     "unit": None, "plan": str(plan), "beds": beds_n,
                     "sqft": _num(sqft), "rent": _num(rent),
                     "avail_date": None, "plan_count": n,
                 }
+
+    # Unit-level wins; plan-level only as fallback (they describe the same
+    # apartments, and keeping both double-alerts every change).
+    listings = unit_recs if unit_recs else plan_recs
 
     # Fallback: rendered text (any bed count)
     if not listings and rendered_text:
@@ -313,6 +333,29 @@ def _prev_desc(v, features):
     return v if isinstance(v, str) else describe(v, features)
 
 
+def normalize_previous(previous, current):
+    """Migrate/clean the previous state so diffs compare like with like.
+
+    - Old plan keys embedded the count (plan:J1:4) -> re-key to plan:J1.
+    - If the current run has unit-level records, drop plan-level and
+      text-fallback entries from previous: they were duplicates of the same
+      apartments, and diffing units against plans produces total churn.
+    """
+    out = {}
+    for k, v in previous.items():
+        if k.startswith("plan:"):
+            parts = k.split(":")
+            if len(parts) == 3 and parts[2].isdigit():
+                k = f"plan:{parts[1]}"
+        out[k] = v
+
+    curr_has_units = any(k.startswith("unit:") for k in current)
+    if curr_has_units:
+        out = {k: v for k, v in out.items()
+               if k.startswith("unit:")}
+    return out
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -331,21 +374,42 @@ def main():
         print("  -", describe(rec, features))
 
     state = load_state()
-    previous = state.get("listings", {})
+    raw_previous = state.get("listings", {})
     is_first_run = state.get("last_run") is None
+    previous = normalize_previous(raw_previous, current)
+
+    # ---- Degraded-run guard -------------------------------------------------
+    # If this run captured strictly worse data than last time (nothing at all,
+    # or lost unit-level detail while the last run had it), do NOT diff and do
+    # NOT overwrite state — a flaky scrape must never nuke the baseline and
+    # re-alert everything on the next good run.
+    prev_has_units = any(k.startswith("unit:") for k in raw_previous)
+    curr_has_units = any(k.startswith("unit:") for k in current)
+    degraded = (not is_first_run and raw_previous and (
+        not current or (prev_has_units and not curr_has_units)
+    ))
+    if degraded:
+        print("[warn] Degraded capture (got "
+              f"{len(current)} records, unit-level={curr_has_units}; previous "
+              f"run had {len(raw_previous)}, unit-level={prev_has_units}). "
+              "Skipping diff and keeping previous state. If this persists, "
+              "run locally with --debug to inspect.")
+        return
 
     new_keys = [k for k in current if k not in previous]
     gone_keys = [k for k in previous if k not in current]
 
-    # Price changes: same listing present in both runs with a different rent.
-    # Old v1 state stored plain strings (no rent) — skip those gracefully.
+    # Plan-only mode: availability-count changes on the same floorplan.
+    count_changes = []
+    # Price changes: same listing in both runs with a materially different rent.
     price_changes = []
     for k in current:
         prev = previous.get(k)
         if not isinstance(prev, dict):
             continue
         old_rent, new_rent = prev.get("rent"), current[k].get("rent")
-        if old_rent and new_rent and abs(old_rent - new_rent) >= 1:
+        if (old_rent and new_rent
+                and abs(old_rent - new_rent) >= PRICE_ALERT_THRESHOLD):
             direction = "📈 increased" if new_rent > old_rent else "📉 dropped"
             delta = abs(int(new_rent - old_rent))
             price_changes.append(
@@ -353,6 +417,25 @@ def main():
                 f"  {direction}: ${int(old_rent):,} → ${int(new_rent):,} "
                 f"({'+' if new_rent > old_rent else '-'}${delta:,})"
             )
+        old_n, new_n = prev.get("plan_count"), current[k].get("plan_count")
+        if old_n and new_n and old_n != new_n:
+            arrow = "more units" if new_n > old_n else "fewer units"
+            count_changes.append(
+                f"• {describe(current[k], features)}: {old_n} → {new_n} "
+                f"available ({arrow})"
+            )
+
+    # ---- Mass-churn suppressor ---------------------------------------------
+    # A real market never replaces most of the inventory in one 10-minute
+    # window in both directions at once; that's a scrape/format anomaly.
+    pool = max(len(current), len(previous))
+    churn = (new_keys and gone_keys and pool >= 5
+             and (len(new_keys) + len(gone_keys)) > CHURN_SUPPRESS_RATIO * 2 * pool)
+    if churn:
+        print(f"[warn] Anomalous churn ({len(new_keys)} new + "
+              f"{len(gone_keys)} gone out of {pool}); suppressing alert and "
+              "re-baselining silently.")
+        new_keys, gone_keys, price_changes, count_changes = [], [], [], []
 
     messages = []
     if not is_first_run:
@@ -364,6 +447,8 @@ def main():
             lines = ["📤 No longer available (likely leased):"]
             lines += [f"• {_prev_desc(previous[k], features)}" for k in gone_keys]
             messages.append("\n".join(lines))
+        if count_changes:
+            messages.append("🔢 Availability change(s):\n" + "\n".join(count_changes))
         if price_changes:
             messages.append("💲 Price change(s):\n" + "\n".join(price_changes))
 
@@ -373,19 +458,14 @@ def main():
         send_telegram(msg)
     elif is_first_run:
         print("\nFirst run — baseline saved.")
-        body = ("✅ Martin watcher v2 is live. Tracking ALL unit types.\n"
+        body = ("✅ Martin watcher is live. Tracking ALL unit types.\n"
                 "Current listings:\n"
                 + "\n".join(f"• {describe(r, features)}" for r in current.values())
                 if current else
-                "✅ Martin watcher v2 is live. No listings detected right now.")
+                "✅ Martin watcher is live. No listings detected right now.")
         send_telegram(body)
     else:
         print("\nNo changes.")
-
-    if not captured and not current:
-        print("[warn] No API JSON captured and no listings parsed. "
-              "Site may be blocking headless browsers or changed structure. "
-              "Run locally with --debug to inspect.")
 
     save_state(current)
 
